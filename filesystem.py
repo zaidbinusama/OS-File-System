@@ -6,85 +6,82 @@ filesInUse = []
 root = os.getcwd()
 global datdict
 datdict = {}
+lock = threading.Lock()
+global clientInfo
+clientInfo = {
+    'message': ''
+}
 
 
-def thread_function(thread_number, arr):
+def thread_function(a):
 
-    for a in arr:
-        a =a.strip()
-        a = a.split(' ')
-        if a[0] == 'create':
-            createFile(a[1])
-        elif a[0] == 'delete':
-            deleteFile(a[1])
-        elif a[0] == 'makeDir':
-            makeDirectory(a[1])
-        elif a[0] == 'changeDir':
-            changeDirectory(a[1])
-        if a[0] == 'open':
-            a[1] = a[1].replace("<", "")
-            a[1] = a[1].replace(">", "")
-            a[1] = a[1].replace("\n", "")
-            args = a[1].split(',')
-            openFile(args[0], args[1])
-        elif a[0] == 'read_from_file':
-            a[1] = a[1].replace("<", "")
-            a[1] = a[1].replace(">", "")
-            a[1] = a[1].replace(",", "")
-            a[1] = a[1].replace("\n", "")
-            a[2] = a[2].replace(",", "")
-            a[3] = a[3].replace("\n", "")
-            openFile(a[1], 'x', '', a[2], a[3])
-        elif a[0] == 'close':
-            a[1] = a[1].replace("<", "")
-            a[1] = a[1].replace(">", "")
-            a[1] = a[1].replace("\n", "")
-            args = a[1].split(',')
-            closeFile(args[0])
-        elif a[0] == 'write_to_file':
-            # a[2] = a[2:-1]
-            # print(a[2:])
-            a[2] = ' '.join(a[2:])
-            a[1] = a[1].replace("<", "")
-            a[1] = a[1].replace(">", "")
-            a[1] = a[1].replace("\n", "")
-            a[1] = a[1].replace(",", "")
-            a[2] = a[2].replace(",", "")
-            a[2] = a[2].replace("\n", "")
-            
-
-            print(a[2])
-            openFile(a[1], 'w', a[2])
-        elif a[0] == 'write_at':
-            a[1] = a[1].replace("<", "")
-            a[1] = a[1].replace(">", "")
-            a[1] = a[1].replace("\n", "")
-            a[1] = a[1].replace(",", "")
-            contentu = a[2:-1]
-            # a[2] = a[2].replace(",", "")
-            a[3] = a[3].replace("\n", "")
-            # a[2] = a[2:-1]
-            a[3] = a[3].replace(",", "")
-            a[4] = a[4].replace("\n", "")
-            # print(a)
-            contentu = ' '.join(contentu)
-            print(contentu)
-            openFile(a[1], 'w', contentu, a[-1])        
-        elif a[0] == 'truncate_file':
-            truncateFile(a[1], a[2])
-        elif a[0] == 'mov':
-            moveFile(a[1], a[2])
-
-        elif a[0] == 'show':
-            showDat()
-        elif a[0] == 'exit':
-            sys.exit(0)
+    a = a.strip()
+    a = a.split(' ')
+    if a[0] == 'create':
+        createFile(a[1])
+    elif a[0] == 'delete':
+        deleteFile(a[1])
+    elif a[0] == 'makeDir':
+        makeDirectory(a[1])
+    elif a[0] == 'changeDir':
+        changeDirectory(a[1])
+    if a[0] == 'open':
+        a[1] = a[1].replace("<", "")
+        a[1] = a[1].replace(">", "")
+        a[1] = a[1].replace("\n", "")
+        args = a[1].split(',')
+        openFile(args[0], args[1])
+    elif a[0] == 'read_from_file':
+        a[1] = a[1].replace("<", "")
+        a[1] = a[1].replace(">", "")
+        a[1] = a[1].replace(",", "")
+        a[1] = a[1].replace("\n", "")
+        a[2] = a[2].replace(",", "")
+        a[3] = a[3].replace("\n", "")
+        openFile(a[1], 'x', '', a[2], a[3])
+    elif a[0] == 'close':
+        a[1] = a[1].replace("<", "")
+        a[1] = a[1].replace(">", "")
+        a[1] = a[1].replace("\n", "")
+        args = a[1].split(',')
+        closeFile(args[0])
+    elif a[0] == 'write_to_file':
+        a[2] = ' '.join(a[2:])
+        a[1] = a[1].replace("<", "")
+        a[1] = a[1].replace(">", "")
+        a[1] = a[1].replace("\n", "")
+        a[1] = a[1].replace(",", "")
+        a[2] = a[2].replace(",", "")
+        a[2] = a[2].replace("\n", "")
+        openFile(a[1], 'w', a[2])
+    elif a[0] == 'write_at':
+        a[1] = a[1].replace("<", "")
+        a[1] = a[1].replace(">", "")
+        a[1] = a[1].replace("\n", "")
+        a[1] = a[1].replace(",", "")
+        more_text = a[2:-1]
+        a[3] = a[3].replace("\n", "")
+        a[3] = a[3].replace(",", "")
+        a[4] = a[4].replace("\n", "")
+        more_text = ' '.join(more_text)
+        openFile(a[1], 'w', more_text, a[-1])
+    elif a[0] == 'truncate_file':
+        truncateFile(a[1], a[2])
+    elif a[0] == 'mov':
+        moveFile(a[1], a[2])
+    elif a[0] == 'show':
+        showDat()
+    elif a[0] == 'exit':
+        sys.exit(0)
+    else:
+        clientInfo
 
 
 def showDat():
     readDat()
+    clientInfo["message"] = ""
     for key in datdict:
-        print(key, datdict[key])
+        clientInfo["message"] += key + " " + datdict[key] + "\n"
 
 
 def saveDat():
@@ -115,18 +112,14 @@ def readDat():
 
     else:
         file = open(root+"/"+"dat.dat", "w")
-
         file.close()
 
 
 def createFile(filename):
     file = open(filename, "w")
-    # filesInUse.append(filename)
-    # content = 'text of file 1'
-    # file.write(content)
     file.close()
-    # filesInUse.remove(filename)
     writeDat(filename)
+    clientInfo["message"] = 'File ' + filename + ' created successfully!'
 
 
 def deleteFile(filename):
@@ -135,16 +128,19 @@ def deleteFile(filename):
         datdict.pop(filename)
         print(filename)
         os.remove(filename)
+        clientInfo["message"] = 'File ' + filename + ' deleted successfully!'
     else:
-        print("File is in use, cannot be deleted!!!")
+        clientInfo["message"] = 'File ' + filename + ' is in use!'
 
 
 def makeDirectory(directory):
     if os.path.isdir(directory):
         print("Directory already exists!!!")
+        clientInfo["message"] = "Directory already exists!!!"
     else:
         directoryName = root + "/" + directory
         print(directoryName)
+        clientInfo["message"] = "Directory created successfully --> " + directoryName
         os.mkdir(directoryName)
 
 
@@ -156,123 +152,128 @@ def changeDirectory(directory):
         directoryName = root + "/" + directory
         directoryName = directoryName.replace("\n", "")
     print(directoryName)
+    clientInfo["message"] = "Directory changed successfully!"
     if os.path.isdir(directoryName):
         os.chdir(directoryName)
+        clientInfo["message"] = "Directory changed successfully to " + directoryName
     else:
-        print("Directory does not exist!!!")
+        print("Directory does not exist!")
+        clientInfo["message"] = "Directory does not exist!"
 
 
 def moveFile(filename, destination):
-    # filename = input("Enter the name of the file you want to move: ")
-    
+    lock.acquire()
+
     if os.path.exists(filename):
         if filename in filesInUse:
-            print("File is in use, cannot be moved!!!")
+            print("File is in use, cannot be moved!")
+            clientInfo["message"] = "File is in use, cannot be moved!"
         else:
-            # directoryName = input(
-            #     "Enter the name of the directory you want to move the file to: ")
             directoryName = root + "/" + destination
             if os.path.isdir(directoryName):
                 os.rename(filename, directoryName + "/" + filename)
+                clientInfo["message"] = "File moved successfully to " + \
+                    directoryName
             else:
-                print("Directory does not exist!!!")
+                print("Directory does not exist!")
+                clientInfo["message"] = "Directory does not exist!"
 
     else:
-        print("File does not exist!!!")
+        print("File does not exist!")
+        clientInfo["message"] = "File does not exist!"
+
+    lock.release()
 
 
 def openFile(filename, mode, content='', startingIndex=0, size=0):
     fileName = filename
-    # content = ''.join(content)
-    print(filename)
     if os.path.exists(filename):
-        if filename in filesInUse:
-            print(filesInUse)
-            print("File is already open!!!")
-        else:
-            match mode:
-                case 'w':
+        match mode:
+
+            case 'w':
+                if filename not in filesInUse:
                     file = open(filename, "r")
                     filesInUse.append(file)
                     contents = file.read()
                     filesInUse.remove(file)
                     file.close()
                     contents = str(contents)
-                    # print(contents)
-                    # print(startingIndex)
                     if int(startingIndex) > len(contents):
                         startingIndex = len(contents)
 
                     contents = contents[:int(startingIndex)] + \
                         content + contents[int(startingIndex):]
-                    # print(contents)
                     file = open(filename, "w")
                     filesInUse.append(file)
-                    # print(content)
                     if (startingIndex == 0):
                         file.write(content)
                     else:
                         file.write(contents)
-                    if filename in filesInUse:    
+                    if filename in filesInUse:
                         filesInUse.remove(filename)
                     file.close()
+                    clientInfo["message"] = "File written to successfully!"
+                else:
+                    print(filesInUse)
+                    print("File is in use, cannot be written to!")
+                    clientInfo["message"] = "File is in use, cannot be written to!"
 
-                case 'a':
-                    filename = open(filename, "a")
-                    filesInUse.append(filename)
-                    content = input("Enter the content to append: ")
-                    filename.write(content)
+            case 'r':
+                filename = open(filename, "r")
+                filesInUse.append(fileName)
+                print("Contents of " + fileName +
+                      ": " + filename.read())
+                clientInfo["message"] = "Contents of " + \
+                    fileName + ":\t" + filename.read()
+                filename.close()
+            case 'x':
+                file = open(filename, "r")
+                filesInUse.append(file)
+                index = startingIndex
+                length = size
+                contents = file.read()
+                print(contents[int(index):int(index) + int(length)])
+                clientInfo["message"] = contents[int(
+                    index):int(index) + int(length)]
+                file.close()
 
-                case 'r':
-                    filename = open(filename, "r")
-                    filesInUse.append(fileName)
-                    print("Contents of " + fileName +
-                          ": " + filename.read())
-                    filesInUse.remove(fileName)
-                    filename.close()
-                case 'x':
-                    file = open(filename, "r")
-                    filesInUse.append(file)
-                    index = startingIndex
-                    length = size
-                    contents = file.read()
-                    print(contents[int(index):int(index) + int(length)])
-                    file.close()
-                case _:
-                    print("Invalid mode!!!")
+            case _:
+                print("Invalid mode!")
+                clientInfo["message"] = "Invalid mode!"
 
-            writeDat(fileName)
+        writeDat(fileName)
     else:
-        print("File does not exist!!!")
+        print("File does not exist!")
+        clientInfo["message"] = "File does not exist!"
 
 
-def moveWithinFile():
-    filename = input("Enter the name of the file you want to write to: ")
-    if os.path.exists(filename):
-        file = open(filename, "r")
-        filesInUse.append(file)
-        contents = file.read()
-        filesInUse.remove(file)
-        file.close()
-        contents = str(contents)
-        moveDataFrom = int(input("Enter starting index: "))
-        moveDataTo = int(input("Enter ending index: "))
-        lengthOfDataToMove = int(input("Enter length of data to move:"))
-        dataToMove = contents[moveDataFrom:moveDataFrom + lengthOfDataToMove]
-        contents = contents[:moveDataFrom] + \
-            contents[moveDataFrom + lengthOfDataToMove:]
-        contents = contents[:moveDataTo] + dataToMove + \
-            contents[moveDataTo:]
+# def moveWithinFile():
+#     filename = input("Enter the name of the file you want to write to: ")
+#     if os.path.exists(filename):
+#         file = open(filename, "r")
+#         filesInUse.append(file)
+#         contents = file.read()
+#         filesInUse.remove(file)
+#         file.close()
+#         contents = str(contents)
+#         moveDataFrom = int(input("Enter starting index: "))
+#         moveDataTo = int(input("Enter ending index: "))
+#         lengthOfDataToMove = int(input("Enter length of data to move:"))
+#         dataToMove = contents[moveDataFrom:moveDataFrom + lengthOfDataToMove]
+#         contents = contents[:moveDataFrom] + \
+#             contents[moveDataFrom + lengthOfDataToMove:]
+#         contents = contents[:moveDataTo] + dataToMove + \
+#             contents[moveDataTo:]
 
-        file = open(filename, "w")
-        filesInUse.append(file)
-        file.write(contents)
-        filesInUse.remove(file)
-        file.close()
-        writeDat(filename)
+#         file = open(filename, "w")
+#         filesInUse.append(file)
+#         file.write(contents)
+#         filesInUse.remove(file)
+#         file.close()
+#         writeDat(filename)
 
-    else:
-        print("File does not exist!!!")
+#     else:
+#         print("File does not exist!!!")
 
 
 def truncateFile(filename, size):
@@ -286,18 +287,20 @@ def truncateFile(filename, size):
             file.close()
             writeDat(filename)
         else:
-            print("File is already smaller than the size you want to truncate to!!!")
+            print("File is already smaller than the size you want to truncate to!")
+            clientInfo["message"] = "File is already smaller than the size you want to truncate to!"
     else:
-        print("File does not exist!!!")
+        print("File does not exist!")
+        clientInfo["message"] = "File does not exist!"
 
 
 def closeFile(filename):
     if filename in filesInUse:
-        file = open(filename, "r")
         filesInUse.remove(filename)
-        file.close()
+        clientInfo["message"] = "File closed successfully!"
     else:
-        print("File is not opened")
+        print("File is not opened!")
+        clientInfo["message"] = "File is not opened!"
 
 
 def memoryMap():
@@ -312,31 +315,16 @@ def memoryMap():
                 file = open(os.path.join(root, name), "r")
                 arr[os.path.join(root, name)] = hex(id(file))
 
+        clientInfo["message"] = ''
         for key, value in arr.items():
             print(key + ':\t' + value+'\n')
-        # for name in files:
+            clientInfo["message"] += key + ':\t' + value+'\n'
 
-
-# functionDic = {
-#     'create': createFile(file),
-#     'delete': deleteFile(),
-#     'mkdir': makeDirectory(),
-#     'chDir': changeDirectory(),
-#     'move': moveFile(),
-#     'open': openFile(),
-#     'moveWithin': moveWithinFile(),
-#     'truncate': truncateFile(),
-#     'close': closeFile(),
-#     'memoryMap': memoryMap()
-# }
 
 if __name__ == "__main__":
     filenames = ['input.txt', 'input2.txt', 'input3.txt', 'input4.txt']
-    # args = sys.argv[1:3]
-    nThreads = int(sys.argv[1])
-    
-    # lines = f.readlines()
 
+    nThreads = int(sys.argv[1])
     print("Threads: " + str(nThreads))
 
     for i in range(nThreads):

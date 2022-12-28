@@ -1,7 +1,7 @@
-file1.txt#
+file.txt#
 
-file2.txt#text
+file1.txt#text to write
 
-file3.txt#text
+input.txt#create file1.txt
 
-file4.txt#text
+file2.txt#contentOfFile
